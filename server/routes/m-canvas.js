@@ -122,16 +122,24 @@ router.get("/iqc", async (req, res) => {
       wifi
     });
 
-    if (Buffer.isBuffer(result)) {
-      res.setHeader("Content-Type", "image/png");
-      res.setHeader("Content-Disposition", 'inline; filename="iqc.png"');
-      return res.send(result);
+    const imageBuffer = result?.image;
+
+    if (!result?.success || !Buffer.isBuffer(imageBuffer)) {
+      return res.status(500).json({
+        status: false,
+        message: "Gagal mengambil buffer gambar IQC",
+        result: {
+          success: result?.success || false,
+          mimeType: result?.mimeType || null,
+          message: result?.message || null
+        }
+      });
     }
 
-    return res.json({
-      status: true,
-      result
-    });
+    res.setHeader("Content-Type", result.mimeType || "image/png");
+    res.setHeader("Content-Disposition", 'inline; filename="iqc.png"');
+
+    return res.send(imageBuffer);
   } catch (err) {
     return res.status(500).json({
       status: false,
