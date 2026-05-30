@@ -2,7 +2,10 @@ import express from "express";
 import { bratGen } from "brat-canvas";
 import { bratVid } from "brat-canvas/video";
 import { generateIQC } from "iqc-canvas";
-import { createCanvas, loadImage, GlobalFonts } from "@napi-rs/canvas";
+import { createRequire } from "module";
+
+const require = createRequire(import.meta.url);
+const { createCanvas, loadImage, GlobalFonts } = require("@napi-rs/canvas");
 
 const router = express.Router();
 
