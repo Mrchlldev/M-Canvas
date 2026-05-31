@@ -556,13 +556,9 @@ router.get("/fake-tweet", async (req, res) => {
     });
 
     res.setHeader("Content-Type", "image/png");
-    res.setHeader(
-      "Content-Disposition",
-      'inline; filename="fake-tweet.png"'
-    );
+    res.setHeader("Content-Disposition", 'inline; filename="fake-tweet.png"');
 
     return res.send(buffer);
-
   } catch (err) {
     return res.status(500).json({
       status: false,
@@ -570,5 +566,4 @@ router.get("/fake-tweet", async (req, res) => {
     });
   }
 });
-
 export default router;
