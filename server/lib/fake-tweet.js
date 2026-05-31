@@ -26,7 +26,7 @@ function abbrNumber(value = 0) {
   return `${+(n / 1e9).toFixed(1)}B`;
 }
 
-export async function fakeTweet(options = {}) {
+export async function generateFakeTweet(options = {}) {
   const {
     name = "Marcel",
     username = "mrchlldev",
