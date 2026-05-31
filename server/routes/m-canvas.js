@@ -54,6 +54,17 @@ const BRAT_TEMPLATES = {
       d: 993
     }
   },
+  freyajkt48: {
+    type: "freyajkt48-brat-image",
+    filename: "brat-freyajkt48.png",
+    imageUrl: "https://c.termai.cc/i119/vIxK.jpg",
+    safeZone: {
+      a: 655,
+      b: 1118,
+      c: 282,
+      d: 993
+    }
+  },
   vermeil: {
     type: "vermile-brat-image",
     filename: "brat-vermeil.png",
@@ -449,6 +460,34 @@ router.get("/brat-goyounjung", async (req, res) => {
     return res.status(500).json({
       status: false,
       message: err.message || "Gagal generate Brat Go Youn Jung"
+    });
+  }
+});
+
+router.get("/brat-freyajkt48", async (req, res) => {
+  try {
+    const text = normalizeText(req.query.text || "Halo semuanya");
+
+    if (!text) {
+      return res.status(400).json({
+        status: false,
+        message: "Parameter text wajib diisi"
+      });
+    }
+
+    const result = await createCustomBrat(text, "freyajkt48");
+
+    res.setHeader("Content-Type", result.mimeType);
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${result.filename}"`
+    );
+
+    return res.send(result.buffer);
+  } catch (err) {
+    return res.status(500).json({
+      status: false,
+      message: err.message || "Gagal generate Brat Freya JKT48"
     });
   }
 });
