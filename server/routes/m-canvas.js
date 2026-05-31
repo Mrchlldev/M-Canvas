@@ -54,6 +54,18 @@ const BRAT_TEMPLATES = {
       d: 993
     }
   },
+  wasawho: {
+    type: "wasawho-brat-image",
+    filename: "brat-wasawho.png",
+    imageUrl:
+      "https://raw.githubusercontent.com/Mrchlldev/Mrchllaja/refs/heads/main/brat/New%20Project%2062%20%5B574BAEE%5D.png",
+    safeZone: {
+      a: 655,
+      b: 1118,
+      c: 282,
+      d: 993
+    }
+  },
   freyajkt48: {
     type: "freyajkt48-brat-image",
     filename: "brat-freyajkt48.png",
@@ -432,6 +444,34 @@ router.get("/brat-video", async (req, res) => {
     return res.status(500).json({
       status: false,
       message: err.message || "Gagal generate Brat Video"
+    });
+  }
+});
+
+router.get("/brat-wasawho", async (req, res) => {
+  try {
+    const text = normalizeText(req.query.text || "Halo semuanya");
+
+    if (!text) {
+      return res.status(400).json({
+        status: false,
+        message: "Parameter text wajib diisi"
+      });
+    }
+
+    const result = await createCustomBrat(text, "wasawho");
+
+    res.setHeader("Content-Type", result.mimeType);
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${result.filename}"`
+    );
+
+    return res.send(result.buffer);
+  } catch (err) {
+    return res.status(500).json({
+      status: false,
+      message: err.message || "Gagal generate Brat Wasawho"
     });
   }
 });
