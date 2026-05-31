@@ -4,6 +4,8 @@ import { bratVid } from "brat-canvas/video";
 import { generateIQC } from "iqc-canvas";
 import { createRequire } from "module";
 
+import { generateNokiaQuote } from "../lib/nokia-quote.js";
+
 const require = createRequire(import.meta.url);
 const { createCanvas, loadImage, GlobalFonts } = require("@napi-rs/canvas");
 
@@ -86,6 +88,23 @@ function getSafeRect(zone) {
 
 function setFont(ctx, size) {
   ctx.font = `${size}px ${TEXT_STYLE.fontFamily}`;
+}
+
+function getCurrentDate() {
+  const now = new Date();
+  return [
+    String(now.getDate()).padStart(2, "0"),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    now.getFullYear()
+  ].join("/");
+}
+
+function getCurrentTime() {
+  const now = new Date();
+  return [
+    String(now.getHours()).padStart(2, "0"),
+    String(now.getMinutes()).padStart(2, "0")
+  ].join(":");
 }
 
 function splitLongWord(ctx, word, maxWidth) {
@@ -469,6 +488,52 @@ router.get("/iqc", async (req, res) => {
     return res.status(500).json({
       status: false,
       message: err.message || "Gagal generate IQC Canvas"
+    });
+  }
+});
+
+router.get("/nokia-quote", async (req, res) => {
+  try {
+    const header = String(
+      req.query.header || "Ditzzx"
+    ).trim();
+
+    const text = String(
+      req.query.text || "Halo Dunia"
+    ).trim();
+
+    const sender = String(
+      req.query.sender || "Anonymous"
+    ).trim();
+
+    const date = String(
+      req.query.date || getCurrentDate()
+    ).trim();
+
+    const time = String(
+      req.query.time || getCurrentTime()
+    ).trim();
+
+    const buffer = await generateNokiaQuote({
+      header,
+      text,
+      sender,
+      date,
+      time
+    });
+
+    res.setHeader("Content-Type", "image/png");
+    res.setHeader(
+      "Content-Disposition",
+      'inline; filename="nokia-quote.png"'
+    );
+
+    return res.send(buffer);
+
+  } catch (err) {
+    return res.status(500).json({
+      status: false,
+      message: err.message
     });
   }
 });
