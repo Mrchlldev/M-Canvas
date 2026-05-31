@@ -1,29 +1,69 @@
-import puppeteer from "puppeteer";
-import fs from "fs";
-import path from "path";
-
-const html2canvasPath = path.resolve(
-  process.cwd(),
-  "node_modules/html2canvas/dist/html2canvas.min.js"
-);
-
-const html2canvasCode = fs.readFileSync(html2canvasPath, "utf8");
-
-function escapeHtml(text = "") {
-  return String(text)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
+import { Canvas, loadImage } from "skia-canvas";
 
 function abbrNumber(value = 0) {
   const n = Number(value);
   if (n < 1000) return String(n);
-  if (n < 1e6) return `${+(n / 1e3).toFixed(1)}K`;
+  if (n < 1e6) return `${+(n / 1000).toFixed(1)}K`;
   if (n < 1e9) return `${+(n / 1e6).toFixed(1)}M`;
   return `${+(n / 1e9).toFixed(1)}B`;
+}
+
+async function loadAvatar(url) {
+  if (!url) return null;
+
+  try {
+    return await loadImage(url);
+  } catch {
+    return null;
+  }
+}
+
+function wrapText(ctx, text, maxWidth) {
+  const lines = [];
+  const paragraphs = String(text || "").split("\n");
+
+  for (const paragraph of paragraphs) {
+    const words = paragraph.split(" ");
+    let line = "";
+
+    for (const word of words) {
+      const test = line ? `${line} ${word}` : word;
+
+      if (ctx.measureText(test).width > maxWidth && line) {
+        lines.push(line);
+        line = word;
+      } else {
+        line = test;
+      }
+    }
+
+    if (line) lines.push(line);
+  }
+
+  return lines;
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function circleImage(ctx, img, x, y, size) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2);
+  ctx.clip();
+  ctx.drawImage(img, x, y, size, size);
+  ctx.restore();
 }
 
 export async function generateFakeTweet(options = {}) {
@@ -65,212 +105,140 @@ export async function generateFakeTweet(options = {}) {
 
   const t = themes[theme] || themes.light;
 
-  const avatarHTML = avatar
-    ? `<img class="avatar" src="${escapeHtml(avatar)}" crossorigin="anonymous" />`
-    : `<div class="avatar fallback">${escapeHtml(name.charAt(0).toUpperCase())}</div>`;
+  const width = 600;
+  const padding = 20;
+  const avatarSize = 54;
+  const maxTextWidth = width - padding * 2;
 
-  const html = `
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8" />
-<style>
-* {
-  box-sizing: border-box;
-}
+  const measureCanvas = new Canvas(width, 900);
+  const measureCtx = measureCanvas.getContext("2d");
 
-body {
-  margin: 0;
-  padding: 40px;
-  background: transparent;
-  font-family: Arial, Helvetica, sans-serif;
-}
+  measureCtx.font = "23px Arial";
+  const tweetLines = wrapText(measureCtx, text, maxTextWidth);
+  const textHeight = tweetLines.length * 32;
 
-#tweet-card {
-  width: 600px;
-  background: ${t.bg};
-  color: ${t.text};
-  border: 1px solid ${t.border};
-  border-radius: 18px;
-  padding: 20px;
-}
+  const height = 210 + textHeight;
 
-.header {
-  display: flex;
-  gap: 12px;
-}
+  const canvas = new Canvas(width, height);
+  const ctx = canvas.getContext("2d");
 
-.avatar {
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
-  background: #1d9bf0;
-}
+  ctx.fillStyle = t.bg;
+  roundRect(ctx, 0, 0, width, height, 18);
+  ctx.fill();
 
-.fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 26px;
-  font-weight: 700;
-}
+  ctx.strokeStyle = t.border;
+  ctx.lineWidth = 1;
+  roundRect(ctx, 0.5, 0.5, width - 1, height - 1, 18);
+  ctx.stroke();
 
-.user {
-  flex: 1;
-  min-width: 0;
-}
+  const avatarImg = await loadAvatar(avatar);
 
-.name-row {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
+  if (avatarImg) {
+    circleImage(ctx, avatarImg, padding, padding, avatarSize);
+  } else {
+    ctx.fillStyle = "#1d9bf0";
+    ctx.beginPath();
+    ctx.arc(
+      padding + avatarSize / 2,
+      padding + avatarSize / 2,
+      avatarSize / 2,
+      0,
+      Math.PI * 2
+    );
+    ctx.fill();
 
-.name {
-  font-size: 17px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.verified {
-  width: 18px;
-  height: 18px;
-  background: #1d9bf0;
-  color: #fff;
-  border-radius: 50%;
-  font-size: 12px;
-  display: ${verified ? "flex" : "none"};
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-}
-
-.username {
-  color: ${t.sub};
-  font-size: 15px;
-  margin-top: 2px;
-}
-
-.tweet-text {
-  margin-top: 18px;
-  font-size: 23px;
-  line-height: 1.35;
-  word-wrap: break-word;
-}
-
-.meta {
-  margin-top: 20px;
-  color: ${t.sub};
-  font-size: 15px;
-}
-
-.meta span {
-  color: ${t.text};
-}
-
-.numbers {
-  display: flex;
-  gap: 18px;
-  margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid ${t.border};
-  font-size: 15px;
-  color: ${t.sub};
-}
-
-.numbers b {
-  color: ${t.text};
-}
-
-.footer {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid ${t.border};
-  color: ${t.sub};
-  font-size: 14px;
-}
-</style>
-</head>
-<body>
-  <div id="tweet-card">
-    <div class="header">
-      ${avatarHTML}
-      <div class="user">
-        <div class="name-row">
-          <div class="name">${escapeHtml(name)}</div>
-          <div class="verified">✓</div>
-        </div>
-        <div class="username">@${escapeHtml(username.replace(/^@/, ""))}</div>
-      </div>
-    </div>
-
-    <div class="tweet-text">
-      ${escapeHtml(text).replace(/\n/g, "<br>")}
-    </div>
-
-    <div class="meta">
-      ${escapeHtml(time)} · ${escapeHtml(date)} · <span>${escapeHtml(client)}</span>
-    </div>
-
-    <div class="numbers">
-      <div><b>${abbrNumber(retweets)}</b> Retweets</div>
-      <div><b>${abbrNumber(quotes)}</b> Quotes</div>
-      <div><b>${abbrNumber(likes)}</b> Likes</div>
-    </div>
-
-    <div class="footer">Fake Tweet Generator</div>
-  </div>
-
-  <script>${html2canvasCode}</script>
-  <script>
-    window.renderTweet = async function () {
-      const element = document.getElementById("tweet-card");
-
-      const canvas = await html2canvas(element, {
-        backgroundColor: null,
-        useCORS: true,
-        allowTaint: true,
-        scale: 2,
-        windowWidth: 700
-      });
-
-      return canvas.toDataURL("image/png");
-    };
-  </script>
-</body>
-</html>
-`;
-
-  let browser;
-
-  try {
-    browser = await puppeteer.launch({
-      headless: "new",
-      args: ["--no-sandbox", "--disable-setuid-sandbox"]
-    });
-
-    const page = await browser.newPage();
-
-    await page.setViewport({
-      width: 700,
-      height: 900,
-      deviceScaleFactor: 1
-    });
-
-    await page.setContent(html, {
-      waitUntil: "networkidle0"
-    });
-
-    const dataUrl = await page.evaluate(async () => {
-      return await window.renderTweet();
-    });
-
-    const base64 = dataUrl.replace(/^data:image\/png;base64,/, "");
-    return Buffer.from(base64, "base64");
-  } finally {
-    if (browser) await browser.close();
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 26px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(
+      String(name).charAt(0).toUpperCase(),
+      padding + avatarSize / 2,
+      padding + avatarSize / 2
+    );
   }
+
+  const userX = padding + avatarSize + 12;
+
+  ctx.textAlign = "left";
+  ctx.textBaseline = "top";
+
+  ctx.fillStyle = t.text;
+  ctx.font = "bold 17px Arial";
+  ctx.fillText(name, userX, padding + 2);
+
+  const nameWidth = ctx.measureText(name).width;
+
+  if (verified) {
+    ctx.fillStyle = "#1d9bf0";
+    ctx.beginPath();
+    ctx.arc(userX + nameWidth + 14, padding + 11, 9, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 12px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("✓", userX + nameWidth + 14, padding + 11);
+  }
+
+  ctx.textAlign = "left";
+  ctx.textBaseline = "top";
+  ctx.fillStyle = t.sub;
+  ctx.font = "15px Arial";
+  ctx.fillText(`@${String(username).replace(/^@/, "")}`, userX, padding + 25);
+
+  let y = padding + avatarSize + 18;
+
+  ctx.fillStyle = t.text;
+  ctx.font = "23px Arial";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "top";
+
+  for (const line of tweetLines) {
+    ctx.fillText(line, padding, y);
+    y += 32;
+  }
+
+  y += 14;
+
+  ctx.fillStyle = t.sub;
+  ctx.font = "15px Arial";
+  ctx.fillText(`${time} · ${date} · ${client}`, padding, y);
+
+  y += 38;
+
+  ctx.strokeStyle = t.border;
+  ctx.beginPath();
+  ctx.moveTo(padding, y - 16);
+  ctx.lineTo(width - padding, y - 16);
+  ctx.stroke();
+
+  ctx.font = "15px Arial";
+
+  ctx.fillStyle = t.text;
+  ctx.font = "bold 15px Arial";
+  ctx.fillText(abbrNumber(retweets), padding, y);
+
+  ctx.fillStyle = t.sub;
+  ctx.font = "15px Arial";
+  ctx.fillText(" Retweets", padding + ctx.measureText(abbrNumber(retweets)).width + 4, y);
+
+  ctx.fillStyle = t.text;
+  ctx.font = "bold 15px Arial";
+  ctx.fillText(abbrNumber(quotes), padding + 150, y);
+
+  ctx.fillStyle = t.sub;
+  ctx.font = "15px Arial";
+  ctx.fillText(" Quotes", padding + 150 + ctx.measureText(abbrNumber(quotes)).width + 4, y);
+
+  ctx.fillStyle = t.text;
+  ctx.font = "bold 15px Arial";
+  ctx.fillText(abbrNumber(likes), padding + 270, y);
+
+  ctx.fillStyle = t.sub;
+  ctx.font = "15px Arial";
+  ctx.fillText(" Likes", padding + 270 + ctx.measureText(abbrNumber(likes)).width + 4, y);
+
+  return await canvas.toBuffer("png");
 }
