@@ -30,6 +30,30 @@ const BRAT_FONT_URL =
   "https://raw.githubusercontent.com/Ditzzx-vibecoder/Assets/main/Brat/Poppins.ttf";
 
 const BRAT_TEMPLATES = {
+  zeejkt48: {
+    type: "zeejkt48-brat-image",
+    filename: "brat-zeejkt48.png",
+    imageUrl:
+      "https://c.termai.cc/i119/uPny.jpg",
+    safeZone: {
+      a: 655,
+      b: 1118,
+      c: 282,
+      d: 993
+    }
+  },
+  goyounjung: {
+    type: "goyounjung-brat-image",
+    filename: "brat-goyounjung.png",
+    imageUrl:
+      "https://c.termai.cc/i193/ga61t.jpg",
+    safeZone: {
+      a: 655,
+      b: 1118,
+      c: 282,
+      d: 993
+    }
+  },
   vermeil: {
     type: "vermile-brat-image",
     filename: "brat-vermeil.png",
@@ -316,6 +340,22 @@ router.get("/", (req, res) => {
         }
       },
       {
+        name: "Brat Go Youn Jung",
+        method: "GET",
+        path: "/api/m-canvas/brat-goyounjung",
+        query: {
+          text: "string"
+        }
+      },
+      {
+        name: "Brat Zee JKT48",
+        method: "GET",
+        path: "/api/m-canvas/brat-zeejkt48",
+        query: {
+          text: "string"
+        }
+      },
+      {
         name: "IQC Canvas",
         method: "GET",
         path: "/api/m-canvas/iqc",
@@ -381,6 +421,62 @@ router.get("/brat-video", async (req, res) => {
     return res.status(500).json({
       status: false,
       message: err.message || "Gagal generate Brat Video"
+    });
+  }
+});
+
+router.get("/brat-goyounjung", async (req, res) => {
+  try {
+    const text = normalizeText(req.query.text || "Halo semuanya");
+
+    if (!text) {
+      return res.status(400).json({
+        status: false,
+        message: "Parameter text wajib diisi"
+      });
+    }
+
+    const result = await createCustomBrat(text, "goyounjung");
+
+    res.setHeader("Content-Type", result.mimeType);
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${result.filename}"`
+    );
+
+    return res.send(result.buffer);
+  } catch (err) {
+    return res.status(500).json({
+      status: false,
+      message: err.message || "Gagal generate Brat Go Youn Jung"
+    });
+  }
+});
+
+router.get("/brat-zeejkt48", async (req, res) => {
+  try {
+    const text = normalizeText(req.query.text || "Halo semuanya");
+
+    if (!text) {
+      return res.status(400).json({
+        status: false,
+        message: "Parameter text wajib diisi"
+      });
+    }
+
+    const result = await createCustomBrat(text, "zeejkt48");
+
+    res.setHeader("Content-Type", result.mimeType);
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${result.filename}"`
+    );
+
+    return res.send(result.buffer);
+  } catch (err) {
+    return res.status(500).json({
+      status: false,
+      message: err.message || "Gagal generate Brat Zee JKT48"
     });
   }
 });
