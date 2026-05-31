@@ -15,6 +15,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "iqc-canvas": "^1.0.0",
-    "html2canvas": "1.4.1"
+    "html2canvas": "1.4.1",
+    "puppeteer": "25.1.0"
   }
 }
