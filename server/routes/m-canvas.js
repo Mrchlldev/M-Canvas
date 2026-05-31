@@ -4,6 +4,7 @@ import { bratVid } from "brat-canvas/video";
 import { generateIQC } from "iqc-canvas";
 import { createRequire } from "module";
 
+import { generateFakeTweet } from "../lib/fake-tweet.js";
 import { generateNokiaQuote } from "../lib/nokia-quote.js";
 
 const require = createRequire(import.meta.url);
@@ -526,6 +527,38 @@ router.get("/nokia-quote", async (req, res) => {
     res.setHeader(
       "Content-Disposition",
       'inline; filename="nokia-quote.png"'
+    );
+
+    return res.send(buffer);
+
+  } catch (err) {
+    return res.status(500).json({
+      status: false,
+      message: err.message
+    });
+  }
+});
+router.get("/fake-tweet", async (req, res) => {
+  try {
+    const buffer = await generateFakeTweet({
+      name: req.query.name || "Marcel",
+      username: req.query.username || "mrchlldev",
+      text: req.query.text || "Halo Dunia",
+      avatar: req.query.avatar || "",
+      verified: String(req.query.verified || "true") !== "false",
+      theme: req.query.theme || "light",
+      retweets: Number(req.query.retweets || 0),
+      quotes: Number(req.query.quotes || 0),
+      likes: Number(req.query.likes || 0),
+      time: req.query.time || "10:30 AM",
+      date: req.query.date || "May 31, 2026",
+      client: req.query.client || "Twitter for Android"
+    });
+
+    res.setHeader("Content-Type", "image/png");
+    res.setHeader(
+      "Content-Disposition",
+      'inline; filename="fake-tweet.png"'
     );
 
     return res.send(buffer);
