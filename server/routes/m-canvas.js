@@ -83,6 +83,39 @@ const BRAT_TEMPLATES = {
       d: 993
     }
   },
+  rose: {
+    type: "rose-brat-image",
+    filename: "brat-rose.png",
+    imageUrl: "https://raw.githubusercontent.com/Mrchlldev/Mrchllaja/refs/heads/main/brat/file_0000000035d471faad3b80615552c35d.png",
+    safeZone: {
+      a: 655,
+      b: 1118,
+      c: 282,
+      d: 993
+    }
+  },
+  jennie_v1: {
+    type: "jennie-v1-brat-image",
+    filename: "brat-jennie-v1.png",
+    imageUrl: "https://raw.githubusercontent.com/Mrchlldev/Mrchllaja/refs/heads/main/brat/file_0000000035d872098f07f1c8560d9665.png",
+    safeZone: {
+      a: 655,
+      b: 1118,
+      c: 282,
+      d: 993
+    }
+  },
+  jennie_v2: {
+    type: "jennie-v2-brat-image",
+    filename: "brat-jennie-v1.png",
+    imageUrl: "https://raw.githubusercontent.com/Mrchlldev/Mrchllaja/refs/heads/main/brat/file_00000000377071faa8be9caacf12b2f1.png",
+    safeZone: {
+      a: 655,
+      b: 1118,
+      c: 282,
+      d: 993
+    }
+  },
   vermeil: {
     type: "vermile-brat-image",
     filename: "brat-vermeil.png",
@@ -420,26 +453,6 @@ router.get("/", (req, res) => {
           timebar: "true/false",
           wifi: "true/false"
         }
-      },
-      {
-        name: "Fake FF",
-        method: "GET",
-        path: "/api/m-canvas/fake-ff",
-        query: {
-          username: "string",
-          lobby: "number optional"
-        }
-      },
-      {
-        name: "Fake ML",
-        method: "GET",
-        path: "/api/m-canvas/fake-ml",
-        query: {
-          avatar: "string",
-          username: "string",
-          rank: "string",
-          border: "number"
-        }
       }
     ]
   });
@@ -493,6 +506,90 @@ router.get("/brat-video", async (req, res) => {
     return res.status(500).json({
       status: false,
       message: err.message || "Gagal generate Brat Video"
+    });
+  }
+});
+
+router.get("/brat-rose", async (req, res) => {
+  try {
+    const text = normalizeText(req.query.text || "Halo semuanya");
+
+    if (!text) {
+      return res.status(400).json({
+        status: false,
+        message: "Parameter text wajib diisi"
+      });
+    }
+
+    const result = await createCustomBrat(text, "rose");
+
+    res.setHeader("Content-Type", result.mimeType);
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${result.filename}"`
+    );
+
+    return res.send(result.buffer);
+  } catch (err) {
+    return res.status(500).json({
+      status: false,
+      message: err.message || "Gagal generate Brat Rose"
+    });
+  }
+});
+
+router.get("/brat-jennie-v1", async (req, res) => {
+  try {
+    const text = normalizeText(req.query.text || "Halo semuanya");
+
+    if (!text) {
+      return res.status(400).json({
+        status: false,
+        message: "Parameter text wajib diisi"
+      });
+    }
+
+    const result = await createCustomBrat(text, "jennie_v1");
+
+    res.setHeader("Content-Type", result.mimeType);
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${result.filename}"`
+    );
+
+    return res.send(result.buffer);
+  } catch (err) {
+    return res.status(500).json({
+      status: false,
+      message: err.message || "Gagal generate Brat Jennie V1"
+    });
+  }
+});
+
+router.get("/brat-jennie-v2", async (req, res) => {
+  try {
+    const text = normalizeText(req.query.text || "Halo semuanya");
+
+    if (!text) {
+      return res.status(400).json({
+        status: false,
+        message: "Parameter text wajib diisi"
+      });
+    }
+
+    const result = await createCustomBrat(text, "jennie_v2");
+
+    res.setHeader("Content-Type", result.mimeType);
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${result.filename}"`
+    );
+
+    return res.send(result.buffer);
+  } catch (err) {
+    return res.status(500).json({
+      status: false,
+      message: err.message || "Gagal generate Brat Jennie V2"
     });
   }
 });
@@ -787,98 +884,6 @@ router.get("/fake-tweet", async (req, res) => {
     return res.status(500).json({
       status: false,
       message: err.message
-    });
-  }
-});
-
-router.get("/fake-ff", async (req, res) => {
-  try {
-    const username = String(req.query.username || "Ditzzx").trim();
-    const lobbyQuery = req.query.lobby;
-
-    if (!username) {
-      return res.status(400).json({
-        status: false,
-        message: "Parameter username wajib diisi"
-      });
-    }
-
-    const options = {
-      username
-    };
-
-    if (lobbyQuery !== undefined && String(lobbyQuery).trim() !== "") {
-      options.lobby = parsePositiveNumber(lobbyQuery, 1);
-    }
-
-    const result = await generateFF(options);
-
-    if (result?.status && result.status !== "success") {
-      return res.status(result?.code || 500).json({
-        status: false,
-        message: result?.message || "Gagal generate Fake FF"
-      });
-    }
-
-    const buffer = await readGeneratedImage(result?.result);
-
-    res.setHeader("Content-Type", "image/png");
-    res.setHeader("Content-Disposition", 'inline; filename="fake-ff.png"');
-
-    return res.send(buffer);
-  } catch (err) {
-    return res.status(500).json({
-      status: false,
-      message: err.message || "Gagal generate Fake FF"
-    });
-  }
-});
-
-router.get("/fake-ml", async (req, res) => {
-  try {
-    const avatar = String(req.query.avatar || "").trim();
-    const username = String(req.query.username || "Ditzzx").trim();
-    const rank = String(req.query.rank || "imo").trim();
-    const border = parsePositiveNumber(req.query.border || 1, 1);
-
-    if (!avatar) {
-      return res.status(400).json({
-        status: false,
-        message: "Parameter avatar wajib diisi"
-      });
-    }
-
-    if (!username) {
-      return res.status(400).json({
-        status: false,
-        message: "Parameter username wajib diisi"
-      });
-    }
-
-    const result = await generateMLCard({
-      avatar,
-      username,
-      rank,
-      border
-    });
-
-    if (result?.status && result.status !== "success") {
-      return res.status(result?.code || 500).json({
-        status: false,
-        message: result?.message || "Gagal generate Fake ML"
-      });
-    }
-
-    const buffer = await readGeneratedImage(result?.result);
-
-    res.setHeader("Content-Type", "image/png");
-    res.setHeader("Content-Disposition", 'inline; filename="fake-ml.png"');
-
-    return res.send(buffer);
-  } catch (err) {
-    return res.status(500).json({
-      status: false,
-      message: err.message || "Gagal generate Fake ML"
     });
   }
 });
