@@ -1004,7 +1004,7 @@ router.get("/nokia-quote", async (req, res) => {
     }
 });
 
-router.get("/fake-gopay", async (req, req) => {
+router.get("/fake-gopay", async (req, res) => {
     try {
         const buffer = await generateFakeGopay({
             saldo: req.query.saldo || 50000,
@@ -1019,7 +1019,7 @@ router.get("/fake-gopay", async (req, req) => {
         );
         return res.send(buffer);
     } catch (err) {
-        return ress.status(500).json({
+        return res.status(500).json({
             status: false,
             message: err.message
         });
