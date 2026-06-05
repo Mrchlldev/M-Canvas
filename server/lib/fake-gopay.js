@@ -84,11 +84,11 @@ function tintIcon(ctx, img, x, y, w, h, color) {
 
 export async function generateFakeGopay(data = {}) {
     const dir = path.join(os.tmpdir(), "mcanvas-fake-gopay");
-    const fontDir = path.join(os.tmpdir(), "../fonts");
+    /*const fontDir = path.join(os.tmpdir(), "../fonts");
     const imgDir = path.join(os.tmpdir(), "../assets");
 
     if (!fs.existsSync(fontDir)) fs.mkdirSync(fontDir, { recursive: true });
-    if (!fs.existsSync(imgDir)) fs.mkdirSync(imgDir, { recursive: true });
+    if (!fs.existsSync(imgDir)) fs.mkdirSync(imgDir, { recursive: true });*/
 
     const B = CONFIG.baseUrl;
 
