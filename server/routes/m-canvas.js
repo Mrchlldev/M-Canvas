@@ -3,12 +3,18 @@ import { bratGen } from "brat-canvas";
 import { bratVid } from "brat-canvas/video";
 import { generateIQC } from "iqc-canvas";
 import { createRequire } from "module";
+import fs from "fs/promises";
+import path from "path";
 
 import { generateFakeTweet } from "../lib/fake-tweet.js";
 import { generateNokiaQuote } from "../lib/nokia-quote.js";
 
 const require = createRequire(import.meta.url);
 const { createCanvas, loadImage, GlobalFonts } = require("@napi-rs/canvas");
+const fakeFFModule = require("fake-ff");
+const fakeMLModule = require("fake-ml");
+const generateFF = fakeFFModule.default || fakeFFModule;
+const generateMLCard = fakeMLModule.default || fakeMLModule;
 
 const router = express.Router();
 
@@ -136,6 +142,29 @@ function getSafeRect(zone) {
 
 function setFont(ctx, size) {
   ctx.font = `${size}px ${TEXT_STYLE.fontFamily}`;
+}
+
+
+async function readGeneratedImage(filePath) {
+  if (!filePath) {
+    throw new Error("Path hasil gambar tidak ditemukan");
+  }
+
+  const resolvedPath = path.isAbsolute(filePath)
+    ? filePath
+    : path.resolve(process.cwd(), filePath);
+
+  return await fs.readFile(resolvedPath);
+}
+
+function parsePositiveNumber(value, fallback) {
+  const number = Number(value);
+
+  if (!Number.isFinite(number) || number <= 0) {
+    return fallback;
+  }
+
+  return Math.floor(number);
 }
 
 function getCurrentDate() {
@@ -390,6 +419,26 @@ router.get("/", (req, res) => {
           operator: "true/false",
           timebar: "true/false",
           wifi: "true/false"
+        }
+      },
+      {
+        name: "Fake FF",
+        method: "GET",
+        path: "/api/m-canvas/fake-ff",
+        query: {
+          username: "string",
+          lobby: "number optional"
+        }
+      },
+      {
+        name: "Fake ML",
+        method: "GET",
+        path: "/api/m-canvas/fake-ml",
+        query: {
+          avatar: "string",
+          username: "string",
+          rank: "string",
+          border: "number"
         }
       }
     ]
@@ -741,4 +790,97 @@ router.get("/fake-tweet", async (req, res) => {
     });
   }
 });
+
+router.get("/fake-ff", async (req, res) => {
+  try {
+    const username = String(req.query.username || "Ditzzx").trim();
+    const lobbyQuery = req.query.lobby;
+
+    if (!username) {
+      return res.status(400).json({
+        status: false,
+        message: "Parameter username wajib diisi"
+      });
+    }
+
+    const options = {
+      username
+    };
+
+    if (lobbyQuery !== undefined && String(lobbyQuery).trim() !== "") {
+      options.lobby = parsePositiveNumber(lobbyQuery, 1);
+    }
+
+    const result = await generateFF(options);
+
+    if (result?.status && result.status !== "success") {
+      return res.status(result?.code || 500).json({
+        status: false,
+        message: result?.message || "Gagal generate Fake FF"
+      });
+    }
+
+    const buffer = await readGeneratedImage(result?.result);
+
+    res.setHeader("Content-Type", "image/png");
+    res.setHeader("Content-Disposition", 'inline; filename="fake-ff.png"');
+
+    return res.send(buffer);
+  } catch (err) {
+    return res.status(500).json({
+      status: false,
+      message: err.message || "Gagal generate Fake FF"
+    });
+  }
+});
+
+router.get("/fake-ml", async (req, res) => {
+  try {
+    const avatar = String(req.query.avatar || "").trim();
+    const username = String(req.query.username || "Ditzzx").trim();
+    const rank = String(req.query.rank || "imo").trim();
+    const border = parsePositiveNumber(req.query.border || 1, 1);
+
+    if (!avatar) {
+      return res.status(400).json({
+        status: false,
+        message: "Parameter avatar wajib diisi"
+      });
+    }
+
+    if (!username) {
+      return res.status(400).json({
+        status: false,
+        message: "Parameter username wajib diisi"
+      });
+    }
+
+    const result = await generateMLCard({
+      avatar,
+      username,
+      rank,
+      border
+    });
+
+    if (result?.status && result.status !== "success") {
+      return res.status(result?.code || 500).json({
+        status: false,
+        message: result?.message || "Gagal generate Fake ML"
+      });
+    }
+
+    const buffer = await readGeneratedImage(result?.result);
+
+    res.setHeader("Content-Type", "image/png");
+    res.setHeader("Content-Disposition", 'inline; filename="fake-ml.png"');
+
+    return res.send(buffer);
+  } catch (err) {
+    return res.status(500).json({
+      status: false,
+      message: err.message || "Gagal generate Fake ML"
+    });
+  }
+});
+
 export default router;
