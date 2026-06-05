@@ -8,6 +8,8 @@ import path from "path";
 
 import { generateFakeTweet } from "../lib/fake-tweet.js";
 import { generateNokiaQuote } from "../lib/nokia-quote.js";
+const require = createRequire(import.meta.url);
+const { createCanvas, loadImage, GlobalFonts } = require("@napi-rs/canvas");
 
 const router = express.Router();
 
