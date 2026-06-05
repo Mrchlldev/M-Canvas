@@ -81,7 +81,7 @@ const BRAT_TEMPLATES = {
   rose: {
     type: "rose-brat-image",
     filename: "brat-rose.png",
-    imageUrl: "https://raw.githubusercontent.com/Mrchlldev/Mrchllaja/refs/heads/main/brat/file_0000000035d471faad3b80615552c35d.png",
+    imageUrl: "https://c.termai.cc/i164/OyJTJHA.jpg",
     safeZone: {
       a: 655,
       b: 1118,
@@ -92,7 +92,7 @@ const BRAT_TEMPLATES = {
   jennie_v1: {
     type: "jennie-v1-brat-image",
     filename: "brat-jennie-v1.png",
-    imageUrl: "https://raw.githubusercontent.com/Mrchlldev/Mrchllaja/refs/heads/main/brat/file_0000000035d872098f07f1c8560d9665.png",
+    imageUrl: "https://c.termai.cc/i186/gFzgC.jpg",
     safeZone: {
       a: 655,
       b: 1118,
@@ -103,7 +103,7 @@ const BRAT_TEMPLATES = {
   jennie_v2: {
     type: "jennie-v2-brat-image",
     filename: "brat-jennie-v1.png",
-    imageUrl: "https://raw.githubusercontent.com/Mrchlldev/Mrchllaja/refs/heads/main/brat/file_00000000377071faa8be9caacf12b2f1.png",
+    imageUrl: "https://c.termai.cc/i129/HbJ5QQe.jpg",
     safeZone: {
       a: 655,
       b: 1118,
