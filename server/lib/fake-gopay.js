@@ -83,6 +83,7 @@ function tintIcon(ctx, img, x, y, w, h, color) {
 }
 
 export async function generateFakeGopay(data = {}) {
+    const dir = path.join(os.tmpdir(), "mcanvas-fake-gopay");
     const fontDir = path.join(os.tmpdir(), "../fonts");
     const imgDir = path.join(os.tmpdir(), "../assets");
 
@@ -94,31 +95,31 @@ export async function generateFakeGopay(data = {}) {
     const assets = {
         bg: {
             url: `${B}/Image/quality_restoration_20260501080321276.jpg`,
-            path: path.join(imgDir, "bg.jpg")
+            path: path.join(dir, "bg.jpg")
         },
         fontReg: {
             url: `${B}/Font/rupa_sans_regular.ttf`,
-            path: path.join(fontDir, "reg.ttf")
+            path: path.join(dir, "reg.ttf")
         },
         fontSb: {
             url: `${B}/Font/rupa_sans_semi_bold.ttf`,
-            path: path.join(fontDir, "sb.ttf")
+            path: path.join(dir, "sb.ttf")
         },
         fontSerif: {
             url: `${B}/Font/rupa_serif_semi_bold.ttf`,
-            path: path.join(fontDir, "serif.ttf")
+            path: path.join(dir, "serif.ttf")
         },
         iconReport: {
             url: `${B}/Image/bar-chart_6687624.svg`,
-            path: path.join(imgDir, "report.svg")
+            path: path.join(dir, "report.svg")
         },
         iconEye: {
             url: `${B}/Image/icChat16ReadMessage.svg`,
-            path: path.join(imgDir, "eye.svg")
+            path: path.join(dir, "eye.svg")
         },
         iconNext: {
             url: `${B}/Image/icNavigation16NextIos.svg`,
-            path: path.join(imgDir, "next.svg")
+            path: path.join(dir, "next.svg")
         }
     };
 
