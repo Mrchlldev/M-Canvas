@@ -92,7 +92,7 @@ function tintIcon(ctx, img, x, y, w, h, color) {
     ctx.drawImage(off, x, y, w, h);
 }
 
-async function generateFakeGopay(data = {}) {
+export async function generateFakeGopay(data = {}) {
     const fontDir = path.join(__dirname, '../fonts');
     const imgDir  = path.join(__dirname, '../assets');
 
