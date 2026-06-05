@@ -89,6 +89,50 @@ const BRAT_TEMPLATES = {
       d: 993
     }
   },
+  eunha_1: {
+    type: "eunha-brat-image",
+    filename: "brat-eunha.png",
+    imageUrl: "https://c.termai.cc/i144/fLzaHK.jpg",
+    safeZone: {
+      a: 655,
+      b: 1118,
+      c: 282,
+      d: 993
+    }
+  },
+  eunha_2: {
+    type: "eunha-2-brat-image",
+    filename: "brat-eunha-2.png",
+    imageUrl: "https://c.termai.cc/i121/DrOBfR.jpg",
+    safeZone: {
+      a: 655,
+      b: 1118,
+      c: 282,
+      d: 993
+    }
+  },
+  eunha_3: {
+    type: "eunha-3-brat-image",
+    filename: "brat-eunha-3.png",
+    imageUrl: "https://c.termai.cc/i149/QfnhW.jpg",
+    safeZone: {
+      a: 655,
+      b: 1118,
+      c: 282,
+      d: 993
+    }
+  },
+  eunha_4: {
+    type: "eunha-4-brat-image",
+    filename: "brat-eunha-4.png",
+    imageUrl: "https://c.termai.cc/i181/4dz.jpg",
+    safeZone: {
+      a: 655,
+      b: 1118,
+      c: 282,
+      d: 993
+    }
+  },
   jennie_v1: {
     type: "jennie-v1-brat-image",
     filename: "brat-jennie-v1.png",
@@ -529,6 +573,118 @@ router.get("/brat-rose", async (req, res) => {
     return res.status(500).json({
       status: false,
       message: err.message || "Gagal generate Brat Rose"
+    });
+  }
+});
+
+router.get("/brat-eunha1", async (req, res) => {
+  try {
+    const text = normalizeText(req.query.text || "Halo semuanya");
+
+    if (!text) {
+      return res.status(400).json({
+        status: false,
+        message: "Parameter text wajib diisi"
+      });
+    }
+
+    const result = await createCustomBrat(text, "eunha_1");
+
+    res.setHeader("Content-Type", result.mimeType);
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${result.filename}"`
+    );
+
+    return res.send(result.buffer);
+  } catch (err) {
+    return res.status(500).json({
+      status: false,
+      message: err.message || "Gagal generate Brat eunha 1"
+    });
+  }
+});
+
+router.get("/brat-eunha2", async (req, res) => {
+  try {
+    const text = normalizeText(req.query.text || "Halo semuanya");
+
+    if (!text) {
+      return res.status(400).json({
+        status: false,
+        message: "Parameter text wajib diisi"
+      });
+    }
+
+    const result = await createCustomBrat(text, "eunha_2");
+
+    res.setHeader("Content-Type", result.mimeType);
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${result.filename}"`
+    );
+
+    return res.send(result.buffer);
+  } catch (err) {
+    return res.status(500).json({
+      status: false,
+      message: err.message || "Gagal generate Brat eunha 2"
+    });
+  }
+});
+
+router.get("/brat-eunha3", async (req, res) => {
+  try {
+    const text = normalizeText(req.query.text || "Halo semuanya");
+
+    if (!text) {
+      return res.status(400).json({
+        status: false,
+        message: "Parameter text wajib diisi"
+      });
+    }
+
+    const result = await createCustomBrat(text, "eunha_3");
+
+    res.setHeader("Content-Type", result.mimeType);
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${result.filename}"`
+    );
+
+    return res.send(result.buffer);
+  } catch (err) {
+    return res.status(500).json({
+      status: false,
+      message: err.message || "Gagal generate Brat eunha 3"
+    });
+  }
+});
+
+router.get("/brat-eunha4", async (req, res) => {
+  try {
+    const text = normalizeText(req.query.text || "Halo semuanya");
+
+    if (!text) {
+      return res.status(400).json({
+        status: false,
+        message: "Parameter text wajib diisi"
+      });
+    }
+
+    const result = await createCustomBrat(text, "eunha_4");
+
+    res.setHeader("Content-Type", result.mimeType);
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${result.filename}"`
+    );
+
+    return res.send(result.buffer);
+  } catch (err) {
+    return res.status(500).json({
+      status: false,
+      message: err.message || "Gagal generate Brat eunha 4"
     });
   }
 });
