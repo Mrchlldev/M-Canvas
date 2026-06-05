@@ -9,13 +9,6 @@ import path from "path";
 import { generateFakeTweet } from "../lib/fake-tweet.js";
 import { generateNokiaQuote } from "../lib/nokia-quote.js";
 
-const require = createRequire(import.meta.url);
-const { createCanvas, loadImage, GlobalFonts } = require("@napi-rs/canvas");
-const fakeFFModule = require("fake-ff");
-const fakeMLModule = require("fake-ml");
-const generateFF = fakeFFModule.default || fakeFFModule;
-const generateMLCard = fakeMLModule.default || fakeMLModule;
-
 const router = express.Router();
 
 const CANVAS = {
