@@ -2,6 +2,7 @@ import { Canvas, loadImage, FontLibrary } from "skia-canvas";
 import fs from "fs";
 import https from "https";
 import path from "path";
+import os from "os";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -82,8 +83,8 @@ function tintIcon(ctx, img, x, y, w, h, color) {
 }
 
 export async function generateFakeGopay(data = {}) {
-    const fontDir = path.join(__dirname, "../fonts");
-    const imgDir = path.join(__dirname, "../assets");
+    const fontDir = path.join(os.tmpdir(), "../fonts");
+    const imgDir = path.join(os.tmpdir(), "../assets");
 
     if (!fs.existsSync(fontDir)) fs.mkdirSync(fontDir, { recursive: true });
     if (!fs.existsSync(imgDir)) fs.mkdirSync(imgDir, { recursive: true });
