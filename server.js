@@ -20,7 +20,9 @@ app.get("/", (req, res) => {
     endpoints: {
       bratImage: "/api/m-canvas/brat?text=halo",
       bratVideo: "/api/m-canvas/brat-video?text=halo",
-      iqc: "/api/m-canvas/iqc?text=Hello%20World&time=00.00"
+      iqc: "/api/m-canvas/iqc?text=Hello%20World&time=00.00",
+      fakeFF: "/api/m-canvas/fake-ff?username=Ditzzx&lobby=5",
+      fakeML: "/api/m-canvas/fake-ml?avatar=https://example.com/avatar.jpg&username=Ditzzx&rank=imo&border=1"
     }
   });
 });
