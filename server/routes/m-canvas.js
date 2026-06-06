@@ -9,6 +9,7 @@ import path from "path";
 import { generateFakeGopay } from "../lib/fake-gopay.js";
 import { generateFakeTweet } from "../lib/fake-tweet.js";
 import { generateNokiaQuote } from "../lib/nokia-quote.js";
+import { generateCustomIQC } from "../lib/iqc-custom.js";
 const require = createRequire(import.meta.url);
 const { createCanvas, loadImage, GlobalFonts } = require("@napi-rs/canvas");
 
@@ -493,6 +494,17 @@ router.get("/", (req, res) => {
                     timebar: "true/false",
                     wifi: "true/false"
                 }
+            },
+            {
+                name: "IQC Custom",
+                method: "GET",
+                path: "/api/m-canvas/iqc-custom",
+                query: {
+                    nama: "string",
+                    waktu: "string",
+                    imageUrl: "string",
+                    debug: "true/false"
+                }
             }
         ]
     });
@@ -965,6 +977,39 @@ router.get("/iqc", async (req, res) => {
         return res.status(500).json({
             status: false,
             message: err.message || "Gagal generate IQC Canvas"
+        });
+    }
+});
+
+router.get("/iqc-custom", async (req, res) => {
+    try {
+        const nama = normalizeText(req.query.nama || req.query.text || "mie ayam.");
+        const waktu = String(req.query.waktu || req.query.time || "13.56").trim();
+        const debug = String(req.query.debug || "false") === "true";
+        const imageUrl = String(req.query.imageUrl || req.query.image || "").trim();
+
+        if (!nama) {
+            return res.status(400).json({
+                status: false,
+                message: "Parameter nama wajib diisi"
+            });
+        }
+
+        const buffer = await generateCustomIQC({
+            nama,
+            waktu,
+            imageUrl,
+            debug
+        });
+
+        res.setHeader("Content-Type", "image/png");
+        res.setHeader("Content-Disposition", 'inline; filename="iqc-custom.png"');
+
+        return res.send(buffer);
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: err.message || "Gagal generate IQC Custom"
         });
     }
 });
