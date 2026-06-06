@@ -8,8 +8,8 @@ import path from "path";
 const require = createRequire(import.meta.url);
 const { createCanvas, GlobalFonts, loadImage } = require("@napi-rs/canvas");
 
-const ROOT_DIR = process.cwd();
-const ASSETS_DIR = path.join(os.tmpdir(), "mcanvas-iqc-custom-assets");
+const TMP_DIR = path.join(os.tmpdir(), "mcanvas-iqc-custom");
+const ASSETS_DIR = path.join(TMP_DIR, "assets");
 const FONTS_DIR = path.join(ASSETS_DIR, "fonts");
 const BG_DIR = path.join(ASSETS_DIR, "backgrounds");
 const IMG_DIR = path.join(ASSETS_DIR, "images");
@@ -46,7 +46,7 @@ const WA_COLORS = [
     "#FB8C00"
 ];
 
-const COLOR_FILE = path.join(ROOT_DIR, ".color_index");
+const COLOR_FILE = path.join(TMP_DIR, ".color_index");
 
 const config = {
     canvas: { width: 1920, height: 3413 },
@@ -106,6 +106,8 @@ let assetsReady = false;
 let fontsLoaded = false;
 
 function getNextColor() {
+    fs.mkdirSync(path.dirname(COLOR_FILE), { recursive: true });
+
     let idx = 0;
 
     if (fs.existsSync(COLOR_FILE)) {
