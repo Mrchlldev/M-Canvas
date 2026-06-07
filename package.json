@@ -15,7 +15,6 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "iqc-canvas": "^1.0.0",
-    "@napi-rs/canvas": "0.1.80",
-    "emoji-db": "16.0.1"
+    "@napi-rs/canvas": "0.1.80"
   }
 }
