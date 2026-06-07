@@ -5,10 +5,6 @@ import path from "path";
 
 const require = createRequire(import.meta.url);
 const { createCanvas, GlobalFonts, loadImage } = require("@napi-rs/canvas");
-const EmojiDbLib = require("emoji-db");
-
-const emojiDb = new EmojiDbLib({ useDefaultDb: true });
-
 const EMOJI_URLS = {
     apple: "https://raw.githubusercontent.com/SaurusAraAra/mentahan/refs/heads/main/lainnya/emoji-apple-image.json",
     blob: "https://raw.githubusercontent.com/SaurusAraAra/mentahan/refs/heads/main/lainnya/emoji-blob-image.json",
@@ -399,11 +395,35 @@ function drawTrash(ctx, x, y) {
     ctx.stroke();
 }
 
+function searchEmojisFromText(input) {
+    const text = String(input || "");
+    const regex = /[\u{1F1E6}-\u{1F1FF}]{2}|(?:[\p{Emoji_Presentation}\p{Extended_Pictographic}]\uFE0F?)(?:\u200D(?:[\p{Emoji_Presentation}\p{Extended_Pictographic}]\uFE0F?))*/gu;
+    const emojis = [];
+    const seen = new Set();
+    let match;
+
+    while ((match = regex.exec(text)) !== null) {
+        const found = match[0];
+
+        if (!found) continue;
+
+        emojis.push({ found, offset: match.index, length: found.length });
+        seen.add(found);
+    }
+
+    return emojis;
+}
+
 async function createEmojiCache(txt, brand) {
+    const emojis = searchEmojisFromText(txt);
+    const emojiCache = new Map();
+
+    if (!emojis.length) {
+        return { emojis, emojiCache };
+    }
+
     const emojiPrimary = await getEmojiJson(brand);
     const emojiApple = brand !== "apple" ? await getEmojiJson("apple") : null;
-    const emojis = emojiDb.searchFromText({ input: txt, fixCodePoints: true });
-    const emojiCache = new Map();
 
     await Promise.all(emojis.map(async emoji => {
         if (emojiCache.has(emoji.found)) return;
