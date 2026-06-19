@@ -6,8 +6,6 @@ import { createRequire } from "module";
 import fs from "fs/promises";
 import path from "path";
 
-import { generateFakeGopay } from "../lib/fake-gopay.js";
-import { generateFakeTweet } from "../lib/fake-tweet.js";
 import { generateNokiaQuote } from "../lib/nokia-quote.js";
 import { generateCustomIQC } from "../lib/iqc-custom.js";
 import { deepNude } from "../lib/deepnude.js";
@@ -1100,28 +1098,6 @@ router.get("/deepnude", async (req, res) => {
         const { data } = await axios.get(result.result, { responseType: 'arraybuffer' });
         res.setHeader("Content-Type", "image/webp");
         return res.send(Buffer.from(data));
-    } catch (err) {
-        return res.status(500).json({
-            status: false,
-            message: err.message
-        });
-    }
-});
-
-router.get("/fake-gopay", async (req, res) => {
-    try {
-        const buffer = await generateFakeGopay({
-            saldo: req.query.saldo || 50000,
-            koin: req.query.koin || 500,
-            terpakai: req.query.terpakai || 15000000,
-            bulan: req.query.bulan || "Mei"
-        });
-        res.setHeader("Content-Type", "image/png");
-        res.setHeader(
-            "Content-Disposition",
-            'inline; filename="fake-gopay.png"'
-        );
-        return res.send(buffer);
     } catch (err) {
         return res.status(500).json({
             status: false,
