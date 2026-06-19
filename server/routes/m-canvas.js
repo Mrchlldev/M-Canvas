@@ -10,6 +10,7 @@ import { generateFakeGopay } from "../lib/fake-gopay.js";
 import { generateFakeTweet } from "../lib/fake-tweet.js";
 import { generateNokiaQuote } from "../lib/nokia-quote.js";
 import { generateCustomIQC } from "../lib/iqc-custom.js";
+import { deepNude } from "../lib/deepnude.js";
 import { generateIQCV2, parseIQCV2Options } from "../lib/iqc-v2.js";
 const require = createRequire(import.meta.url);
 const { createCanvas, loadImage, GlobalFonts } = require("@napi-rs/canvas");
@@ -1082,6 +1083,23 @@ router.get("/nokia-quote", async (req, res) => {
         );
 
         return res.send(buffer);
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: err.message
+        });
+    }
+});
+
+router.get("/deepnude", async (req, res) => {
+    const url = req.query.url || req.body.url;
+    if (!url) return res.status(400).json({ status: false, message: "Parameter 'url' diperlukan." });
+    try {
+        const result = await deepNude.create(url);
+        if (!result.success) throw new Error(result.result);
+        const { data } = await axios.get(result.result, { responseType: 'arraybuffer' });
+        res.setHeader("Content-Type", "image/webp");
+        return res.send(Buffer.from(data));
     } catch (err) {
         return res.status(500).json({
             status: false,
