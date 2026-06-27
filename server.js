@@ -21,6 +21,7 @@ app.get("/", (req, res) => {
       bratImage: "/api/m-canvas/brat?text=halo",
       bratVideo: "/api/m-canvas/brat-video?text=halo",
       iqc: "/api/m-canvas/iqc?text=Hello%20World&time=00.00",
+      rinChat: "/api/m-canvas/rin-chat?text=Earth%20without%20art%20is%20just%20eh%20🌍🎨✨&time=16.34",
       fakeFF: "/api/m-canvas/fake-ff?username=Ditzzx&lobby=5",
       fakeML: "/api/m-canvas/fake-ml?avatar=https://example.com/avatar.jpg&username=Ditzzx&rank=imo&border=1"
     }
