@@ -10,6 +10,7 @@ import { generateFakeGopay } from "../lib/fake-gopay.js";
 import { generateFakeTweet } from "../lib/fake-tweet.js";
 import { generateNokiaQuote } from "../lib/nokia-quote.js";
 import { generateCustomIQC } from "../lib/iqc-custom.js";
+import { generateRinChat } from "../lib/rin-chat.js";
 const require = createRequire(import.meta.url);
 const { createCanvas, loadImage, GlobalFonts } = require("@napi-rs/canvas");
 
@@ -1010,6 +1011,41 @@ router.get("/iqc-custom", async (req, res) => {
         return res.status(500).json({
             status: false,
             message: err.message || "Gagal generate IQC Custom"
+        });
+    }
+});
+
+router.get("/rin-chat", async (req, res) => {
+    try {
+        const text = normalizeText(req.query.text || "Earth without art is just \"eh\" 🌍🎨✨");
+        const time = String(req.query.time || "16.34").trim();
+        const image = String(req.query.image || req.query.imgUrl || "").trim();
+        const caption = req.query.caption !== undefined ? normalizeText(req.query.caption) : undefined;
+        const emojis = String(req.query.emojis || "👍,❤️,😂,😮,😢,🙏").trim();
+
+        if (!text && !image) {
+            return res.status(400).json({
+                status: false,
+                message: "Parameter text atau image wajib diisi"
+            });
+        }
+
+        const buffer = await generateRinChat({
+            text,
+            time,
+            image,
+            caption,
+            emojis
+        });
+
+        res.setHeader("Content-Type", "image/png");
+        res.setHeader("Content-Disposition", 'inline; filename="rin-chat.png"');
+
+        return res.send(buffer);
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: err.message || "Gagal generate Rin Chat"
         });
     }
 });
