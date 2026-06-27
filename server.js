@@ -21,8 +21,6 @@ app.get("/", (req, res) => {
       bratImage: "/api/m-canvas/brat?text=halo",
       bratVideo: "/api/m-canvas/brat-video?text=halo",
       iqc: "/api/m-canvas/iqc?text=Hello%20World&time=00.00",
-      iqcV2: "/api/m-canvas/iqc-v2?text=Halo%20namaku%20nanas%20%F0%9F%A4%AA&brand=apple&battery=80",
-      iqcCustom: "/api/m-canvas/iqc-custom?nama=mie%20ayam.&waktu=13.56",
       fakeFF: "/api/m-canvas/fake-ff?username=Ditzzx&lobby=5",
       fakeML: "/api/m-canvas/fake-ml?avatar=https://example.com/avatar.jpg&username=Ditzzx&rank=imo&border=1"
     }
