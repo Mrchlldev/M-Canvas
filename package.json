@@ -10,10 +10,10 @@
   },
   "dependencies": {
     "brat-canvas": "^1.0.0",
+    "skia-canvas": "3.0.8",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "iqc-canvas": "^1.0.0",
-    "@napi-rs/canvas": "0.1.80"
+    "iqc-canvas": "^1.0.0"
   }
 }
