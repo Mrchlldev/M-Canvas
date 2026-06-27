@@ -6,10 +6,10 @@ import { createRequire } from "module";
 import fs from "fs/promises";
 import path from "path";
 
+import { generateFakeGopay } from "../lib/fake-gopay.js";
+import { generateFakeTweet } from "../lib/fake-tweet.js";
 import { generateNokiaQuote } from "../lib/nokia-quote.js";
 import { generateCustomIQC } from "../lib/iqc-custom.js";
-import { deepNude } from "../lib/deepnude.js";
-import { generateIQCV2, parseIQCV2Options } from "../lib/iqc-v2.js";
 const require = createRequire(import.meta.url);
 const { createCanvas, loadImage, GlobalFonts } = require("@napi-rs/canvas");
 
@@ -504,21 +504,6 @@ router.get("/", (req, res) => {
                     waktu: "string",
                     imageUrl: "string",
                     debug: "true/false"
-                }
-            },
-            {
-                name: "IQC V2",
-                method: "GET",
-                path: "/api/m-canvas/iqc-v2",
-                query: {
-                    text: "string",
-                    time: "string",
-                    battery: "string",
-                    brand: "apple/blob/google/joypixels/twitter",
-                    operator: "true/false",
-                    timebar: "true/false",
-                    wifi: "true/false",
-                    showBattery: "true/false"
                 }
             }
         ]
@@ -1029,31 +1014,6 @@ router.get("/iqc-custom", async (req, res) => {
     }
 });
 
-router.get("/iqc-v2", async (req, res) => {
-    try {
-        const options = parseIQCV2Options(req.query);
-
-        if (!options.text) {
-            return res.status(400).json({
-                status: false,
-                message: "Parameter text wajib diisi"
-            });
-        }
-
-        const buffer = await generateIQCV2(options);
-
-        res.setHeader("Content-Type", "image/png");
-        res.setHeader("Content-Disposition", 'inline; filename="iqc-v2.png"');
-
-        return res.send(buffer);
-    } catch (err) {
-        return res.status(500).json({
-            status: false,
-            message: err.message || "Gagal generate IQC V2"
-        });
-    }
-});
-
 router.get("/nokia-quote", async (req, res) => {
     try {
         const header = String(req.query.header || "Ditzzx").trim();
@@ -1089,15 +1049,20 @@ router.get("/nokia-quote", async (req, res) => {
     }
 });
 
-router.get("/deepnude", async (req, res) => {
-    const url = req.query.url || req.body.url;
-    if (!url) return res.status(400).json({ status: false, message: "Parameter 'url' diperlukan." });
+router.get("/fake-gopay", async (req, res) => {
     try {
-        const result = await deepNude.create(url);
-        if (!result.success) throw new Error(result.result);
-        const { data } = await axios.get(result.result, { responseType: 'arraybuffer' });
-        res.setHeader("Content-Type", "image/webp");
-        return res.send(Buffer.from(data));
+        const buffer = await generateFakeGopay({
+            saldo: req.query.saldo || 50000,
+            koin: req.query.koin || 500,
+            terpakai: req.query.terpakai || 15000000,
+            bulan: req.query.bulan || "Mei"
+        });
+        res.setHeader("Content-Type", "image/png");
+        res.setHeader(
+            "Content-Disposition",
+            'inline; filename="fake-gopay.png"'
+        );
+        return res.send(buffer);
     } catch (err) {
         return res.status(500).json({
             status: false,
