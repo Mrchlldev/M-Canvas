@@ -55,6 +55,21 @@ async function download(url, dest) {
     fs.writeFileSync(dest, buffer);
 }
 
+async function downloadBuffer(url) {
+    const res = await fetch(url, {
+        headers: {
+            "User-Agent": "Mozilla/5.0"
+        },
+        redirect: "follow"
+    });
+
+    if (!res.ok) {
+        throw new Error(`Gagal download image: ${res.status} ${res.statusText}`);
+    }
+
+    return Buffer.from(await res.arrayBuffer());
+}
+
 async function prepareAssets() {
     if (assetsReady) return;
 
